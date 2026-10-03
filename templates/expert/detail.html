@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Consultation #{{ c.id }}{% endblock %}
+{% block content %}
+<a class="small" href="{{ url_for('expert.requests_list') }}">Back to requests</a>
+<div class="d-flex justify-content-between align-items-center my-2">
+  <h1 class="h3 page-title mb-0">Consultation #{{ c.id }}</h1>{{ m.badge(c.status) }}
+</div>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card mb-3"><div class="card-header">Request</div><ul class="list-group list-group-flush">
+      <li class="list-group-item"><strong>Student:</strong> <a href="{{ url_for('expert.student_record', sid=c.student.id) }}">{{ c.student.full_name }}</a></li>
+      <li class="list-group-item"><strong>Student ID:</strong> {{ c.student.school_id or 'n/a' }}{% if c.student.department %}, {{ c.student.department }}{% endif %}</li>
+      <li class="list-group-item"><strong>When:</strong> {{ m.when(c.slot) }}</li>
+      <li class="list-group-item"><strong>Concern:</strong><br>{{ c.reason }}</li>
+    </ul></div>
+    {% if c.status == 'pending' %}
+    <div class="card mb-3"><div class="card-body d-flex flex-wrap gap-2 align-items-start">
+      <form method="post" action="{{ url_for('expert.approve', cid=c.id) }}">{{ m.csrf() }}<button class="btn btn-primary">Approve request</button></form>
+      <form method="post" action="{{ url_for('expert.decline', cid=c.id) }}" class="flex-grow-1" data-confirm="Decline this request?">{{ m.csrf() }}
+        <div class="input-group"><input class="form-control" name="reason" placeholder="Reason for declining (optional)"><button class="btn btn-outline-danger">Decline</button></div></form>
+    </div></div>
+    {% endif %}
+    {% if history %}
+    <div class="card"><div class="card-header">Earlier sessions with this student</div><ul class="list-group list-group-flush">
+      {% for h in history %}<li class="list-group-item d-flex justify-content-between"><a href="{{ url_for('expert.detail', cid=h.id) }}">{{ h.slot.slot_date.strftime('%b %d, %Y') }}</a>{{ m.badge(h.status) }}</li>{% endfor %}
+    </ul></div>
+    {% endif %}
+  </div>
+  <div class="col-lg-6">
+    <div class="card"><div class="card-header">Notes and outcome</div><div class="card-body">
+    {% if c.status in ('approved','completed') %}
+      <form method="post" action="{{ url_for('expert.update', cid=c.id) }}">{{ m.csrf() }}
+        <div class="mb-3"><label class="form-label" for="expert_notes">Private clinical notes <span class="text-muted">(only you can see these)</span></label>
+          <textarea class="form-control" id="expert_notes" name="expert_notes" rows="5">{{ c.expert_notes or '' }}</textarea></div>
+        <div class="mb-3"><label class="form-label" for="outcome">Outcome summary <span class="text-muted">(shared with the student)</span></label>
+          <textarea class="form-control" id="outcome" name="outcome" rows="4">{{ c.outcome or '' }}</textarea></div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-secondary" name="action" value="save">Save notes</button>
+          {% if c.status == 'approved' %}<button class="btn btn-primary" name="action" value="complete">Save and mark completed</button>{% endif %}
+        </div>
+      </form>
+      {% if c.status == 'approved' %}
+      <hr><form method="post" action="{{ url_for('expert.decline', cid=c.id) }}" data-confirm="Cancel this approved consultation?">{{ m.csrf() }}
+        <div class="input-group"><input class="form-control" name="reason" placeholder="Reason for cancelling (optional)"><button class="btn btn-outline-danger">Cancel session</button></div></form>
+      {% endif %}
+    {% elif c.status == 'pending' %}
+      <p class="text-muted mb-0">Approve the request to start recording notes.</p>
+    {% else %}
+      <p class="mb-1 text-muted">This consultation was cancelled.</p>
+      {% if c.outcome %}<p class="mb-0">{{ c.outcome }}</p>{% endif %}
+    {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

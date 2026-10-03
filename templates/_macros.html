@@ -1,0 +1,13 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+{% macro badge(status) %}<span class="badge status-{{ status }}">{{ status|capitalize }}</span>{% endmacro %}
+{% macro when(s) %}{{ s.slot_date.strftime('%a, %b %d %Y') }}, {{ s.start_time.strftime('%I:%M %p') }} to {{ s.end_time.strftime('%I:%M %p') }}{% endmacro %}
+{% macro pager(p) %}
+{% if p.pages > 1 %}
+<nav aria-label="Pages"><ul class="pagination pagination-sm flex-wrap">
+{% for n in p.iter_pages() %}
+  {% if n %}<li class="page-item {{ 'active' if n == p.page }}"><a class="page-link" href="{{ page_url(n) }}">{{ n }}</a></li>
+  {% else %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}
+{% endfor %}
+</ul></nav>
+{% endif %}
+{% endmacro %}

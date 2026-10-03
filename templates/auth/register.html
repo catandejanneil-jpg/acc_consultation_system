@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Student registration{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-9 col-lg-6">
+  <div class="card"><div class="card-header text-center py-3"><h1 class="h4 mb-0">Create a student account</h1></div>
+  <div class="card-body p-4">
+    <form method="post">{{ m.csrf() }}
+      <div class="mb-3"><label class="form-label" for="full_name">Full name</label><input class="form-control" id="full_name" name="full_name" value="{{ form.get('full_name','') }}" required></div>
+      <div class="mb-3"><label class="form-label" for="email">Email</label><input type="email" class="form-control" id="email" name="email" value="{{ form.get('email','') }}" required></div>
+      <div class="row g-3 mb-3">
+        <div class="col-md-5"><label class="form-label" for="school_id">Student ID</label><input class="form-control" id="school_id" name="school_id" value="{{ form.get('school_id','') }}" required></div>
+        <div class="col-md-7"><label class="form-label" for="department">Department / course</label><input class="form-control" id="department" name="department" value="{{ form.get('department','') }}"></div>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6"><label class="form-label" for="password">Password</label><input type="password" class="form-control" id="password" name="password" minlength="8" required autocomplete="new-password"><div class="form-text">At least 8 characters.</div></div>
+        <div class="col-md-6"><label class="form-label" for="confirm_password">Confirm password</label><input type="password" class="form-control" id="confirm_password" name="confirm_password" required autocomplete="new-password"></div>
+      </div>
+      <button class="btn btn-primary w-100">Create account</button>
+    </form>
+    <p class="text-center small mt-3 mb-0">Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </div></div>
+</div></div>
+{% endblock %}

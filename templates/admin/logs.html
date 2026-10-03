@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Activity logs{% endblock %}
+{% block content %}
+<h1 class="h3 page-title mb-3">Activity logs</h1>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-5"><input class="form-control" name="q" value="{{ term }}" placeholder="Search action or details (e.g. login_failed)"></div>
+  <div class="col-auto"><button class="btn btn-secondary">Search</button></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table table-sm align-middle mb-0">
+  <thead><tr><th>Time (UTC)</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></tr></thead>
+  <tbody>{% for l in pagination.items %}
+    <tr><td class="text-nowrap">{{ l.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ l.user.full_name if l.user else 'Anonymous' }}</td><td>{{ l.action }}</td><td class="text-muted">{{ l.details }}</td><td>{{ l.ip_address }}</td></tr>
+  {% else %}<tr><td colspan="5" class="text-center text-muted py-4">No log entries found.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+<div class="mt-3">{{ m.pager(pagination) }}</div>
+{% endblock %}

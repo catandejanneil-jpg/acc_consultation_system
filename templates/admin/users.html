@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Manage users{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h1 class="h3 page-title mb-0">Users</h1>
+  <a class="btn btn-primary" href="{{ url_for('admin.user_new') }}">Add user</a>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-5"><input class="form-control" name="q" value="{{ term }}" placeholder="Search name, email or student ID"></div>
+  <div class="col-md-3"><select class="form-select" name="role" aria-label="Filter by role"><option value="">All roles</option>
+    {% for k, v in labels.items() %}<option value="{{ k }}" {{ 'selected' if role == k }}>{{ v }}</option>{% endfor %}</select></div>
+  <div class="col-auto"><button class="btn btn-secondary">Filter</button></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table align-middle mb-0">
+  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for u in pagination.items %}
+    <tr><td>{{ u.full_name }}{% if u.school_id %}<div class="small text-muted">{{ u.school_id }}</div>{% endif %}{% if u.specialization %}<div class="small text-muted">{{ u.specialization }}</div>{% endif %}</td>
+    <td>{{ u.email }}</td><td>{{ u.role.label }}</td>
+    <td>{% if u.active %}<span class="badge status-completed">Active</span>{% else %}<span class="badge status-cancelled">Deactivated</span>{% endif %}</td>
+    <td class="text-end text-nowrap"><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.user_edit', uid=u.id) }}">Edit</a>
+      {% if u.id != current_user.id %}
+      <form method="post" action="{{ url_for('admin.user_toggle', uid=u.id) }}" class="d-inline" data-confirm="{{ 'Deactivate' if u.active else 'Reactivate' }} {{ u.full_name }}?">{{ m.csrf() }}
+        <button class="btn btn-sm {{ 'btn-outline-danger' if u.active else 'btn-outline-secondary' }}">{{ 'Deactivate' if u.active else 'Reactivate' }}</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="5" class="text-center text-muted py-4">No users match your filters.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+<div class="mt-3">{{ m.pager(pagination) }}</div>
+{% endblock %}
